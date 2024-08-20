@@ -1,4 +1,4 @@
-import {workspace, AnchorProvider, setProvider,} from "@coral-xyz/anchor";
+import {workspace, AnchorProvider, web3 } from "@coral-xyz/anchor";
 import type {Program} from "@coral-xyz/anchor";
 import {Hme} from "../target/types/hme";
 import * as anchor from "@coral-xyz/anchor";
@@ -9,10 +9,10 @@ dotenv.config()
 async function main() {
 
     const provider = AnchorProvider.env();
-    anchor.setProvider(anchor.AnchorProvider.env());
+    anchor.setProvider(provider);
     const connection = provider.connection;
 
-    const program = workspace.GrowSpace as Program<Hme>;
+    const program = workspace.Hme as Program<Hme>;
 
     let transactionList = await connection.getSignaturesForAddress(
         program.programId,
@@ -26,11 +26,10 @@ async function main() {
         commitment: 'confirmed'
     });
 
-    transactionDetails.forEach((transaction, i) => {
-        const date = new Date(transaction.blockTime * 1000);
-        console.log(`Transaction No: ${i + 1}`);
+    transactionDetails.slice(2,3).forEach((transaction: web3.ParsedTransactionWithMeta, i) => {
+        console.log(`Slot: ${transaction.slot}`);
         console.log(`Messages:`);
-        transaction.meta.logMessages.forEach(console.log)
+        transaction.meta.logMessages.forEach(t => console.log(t))
     })
 }
 
